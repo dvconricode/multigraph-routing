@@ -556,7 +556,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     }
 
     for (auto pr : CM.predecessors) {
-        if (pf.first == 1) {
+        if (pr.first == 1) {
             continue;
         }
         std::cout << *pr.second << std::endl;
