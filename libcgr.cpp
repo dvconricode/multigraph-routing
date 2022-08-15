@@ -241,9 +241,11 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
 
     predecessors = std::unordered_map<nodeId_t, Contact*>();
     visited = std::unordered_map<nodeId_t, bool>();
+    arrival_time = std::unordered_map<nodeId_t, int>();
     for (auto v : vertices) {
         visited[v.first] = false;
         predecessors[v.first] = NULL;
+        arrival_time[v.first] = MAX_SIZE;
     }
 
     /*for (Contact &c : vertices[5].adjacencies[4]) {
@@ -505,15 +507,15 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
         }
         // check if there is any viable contact
         std::vector<Contact> v_curr_to_u = v_curr.adjacencies[u.id];
-        if (v_curr_to_u.back().end < v_curr.arrival_time) {
+        if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) {
             continue;
         }
         // find earliest usable contact from v_curr to u
-        Contact best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
+        Contact best_contact = contact_search(v_curr_to_u, CM.arrival_time[v_curr.id]);
         // should owlt_mgn be included in best arrival time?
-        int best_arr_time = std::max(best_contact.start, v_curr.arrival_time) + best_contact.owlt;
-        if (best_arr_time < u.arrival_time) {
-            u.arrival_time = best_arr_time;
+        int best_arr_time = std::max(best_contact.start, CM.arrival_time[v_curr.id]) + best_contact.owlt;
+        if (best_arr_time < CM.arrival_time[u.id]) {
+            CM.arrival_time[u.id] = best_arr_time;
             // update PQ
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
