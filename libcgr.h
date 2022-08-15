@@ -100,7 +100,7 @@ public:
         return v1.arrival_time > v2.arrival_time;
     }
 };
-    int contact_search_index(std::vector<Contact> contacts, int arrival_time);
+    int contact_search_index(std::vector<Contact> &contacts, int arrival_time);
     std::vector<Contact> cp_load(std::string filename, int max_contacts=MAX_SIZE);
     Route dijkstra(Contact *root_contact, nodeId_t destination, std::vector<Contact> contact_plan);
     Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Contact> contact_plan);
