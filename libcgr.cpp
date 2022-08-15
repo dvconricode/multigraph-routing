@@ -516,6 +516,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
             u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
+            std::cout << *(u.predecessor) << std::endl;
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
