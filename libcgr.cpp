@@ -218,18 +218,18 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
             vertices.insert({ contact.frm, frm });
         }
         else {
-            Vertex frm = vertices[contact.frm];
+            //Vertex frm = vertices[contact.frm];
             std::vector<Contact> adj = frm.adjacencies[contact.to];
             // if the map can't find the key it creates a default constructed element for it
             // https://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
             if (adj.empty() || contact.start > adj.back().start) {
-                frm.adjacencies[contact.to].push_back(contact);
+                vertices[contact.frm].adjacencies[contact.to].push_back(contact);
             }
             else {
                 // insert contact sorted by start time
                 // assuming non-overlapping contacts
                 int index = cgr::contact_search_index(adj, contact.start);
-                frm.adjacencies[contact.to].insert(frm.adjacencies[contact.to].begin() + index, contact);
+                vertices[contact.frm].adjacencies[contact.to].insert(frm.adjacencies[contact.to].begin() + index, contact);
             }
         }
     }
