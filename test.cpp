@@ -15,9 +15,10 @@ int main() {
 
 	for (auto& vertex : cm.vertices) {
 		std::cout << "Vertex: " << vertex.first << std::endl;
-		std::cout << "Adjacencies: " <<;
+		std::cout << "Adjacencies: ";
 		for (auto& adjacency : vertex.second.adjacencies) {
 			std::cout << adjacency.first;
+			std::cout << ", "
 		}
 		std::cout << std::endl;
 	}
