@@ -501,7 +501,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             continue;
         }
         // find earliest usable contact from v_curr to u
-        Contact& best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
+        Contact best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
         // should owlt_mgn be included in best arrival time?
         int best_arr_time = std::max(best_contact.start, v_curr.arrival_time) + best_contact.owlt;
         if (best_arr_time < u.arrival_time) {
@@ -509,7 +509,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             // update PQ
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-            u.predecessor = &best_contact;
+            u.predecessor = &contact_search(v_curr_to_u, v_curr.arrival_time);
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
