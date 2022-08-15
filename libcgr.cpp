@@ -501,7 +501,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             continue;
         }
         // find earliest usable contact from v_curr to u
-        Contact best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
+        Contact& best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
         // should owlt_mgn be included in best arrival time?
         int best_arr_time = std::max(best_contact.start, v_curr.arrival_time) + best_contact.owlt;
         if (best_arr_time < u.arrival_time) {
