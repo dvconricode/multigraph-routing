@@ -524,8 +524,8 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     for (auto v : CM.vertices) {
         PQ.push(v.second);
     }
-    const Vertex *v_curr;
-    const Vertex *v_next;
+    Vertex *v_curr;
+    Vertex *v_next;
     v_curr = &(PQ.top());
     PQ.pop();
     while (true) {
