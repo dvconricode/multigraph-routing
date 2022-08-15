@@ -520,7 +520,6 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
             Contact* p = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
             CM.predecessors[u.id] = p;
-            std::cout << *(u.predecessor) << std::endl;
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
