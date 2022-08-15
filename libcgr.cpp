@@ -239,7 +239,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
         vertices.insert({ dest_id, dest });
     }
 
-    predecessors = std::unordered_map<nodeId_t, Contact>();
+    predecessors = std::unordered_map<nodeId_t, Contact*>();
     visited = std::unordered_map<nodeId_t, bool>();
     for (auto v : vertices) {
         visited[v.first] = false;
@@ -518,7 +518,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
             //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
-            CM.predecessors.insert({u.id, contact_search_predecessor(v_curr_to_u, v_curr.arrival_time) })
+            CM.predecessors.insert({ u.id, contact_search_predecessor(v_curr_to_u, v_curr.arrival_time) });
             std::cout << *(u.predecessor) << std::endl;
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
@@ -560,7 +560,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
     Contact* contact;
-    for (contact = CM.predecessors[v_next]; contact != root_contact; contact = CM.predecessors[CM.vertices[contact->frm]]) {
+    for (contact = CM.predecessors[v_next.id]; contact != root_contact; contact = CM.predecessors[CM.vertices[contact->frm]]) {
         hops.push_back(*contact);
     }
     Route route;
