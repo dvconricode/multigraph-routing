@@ -243,6 +243,9 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
         visited[v.first] = false;
     }
 
+    for (Contact &c : vertices[5].adjacencies[4]) {
+        std::cout << &c << std::endl;
+    }
 }
 
 
