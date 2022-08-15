@@ -1,10 +1,10 @@
 #include "libcgr.h"
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+//#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/json_parser.hpp>
 
-//#include "/opt/homebrew/Cellar/boost/1.79.0_1/include/boost/property_tree/ptree.hpp"
-//#include "/opt/homebrew/Cellar/boost/1.79.0_1/include/boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/property_tree/json_parser.hpp"
 
 #include <queue>
 
