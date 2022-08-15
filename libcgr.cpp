@@ -239,9 +239,11 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
         vertices.insert({ dest_id, dest });
     }
 
+    predecessors = std::unordered_map<nodeId_t, Contact>();
     visited = std::unordered_map<nodeId_t, bool>();
     for (auto v : vertices) {
         visited[v.first] = false;
+        predecessors[v.first] = NULL;
     }
 
     /*for (Contact &c : vertices[5].adjacencies[4]) {
