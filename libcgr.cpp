@@ -601,12 +601,23 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
         }
     }
 
+
+    // test prints for the sake of debugging
+
+    std::cout << "--- Contact Plan ---" << std::endl;
+    for (Contact &c : contact_plan) {
+        std::cout << &c << std::endl;
+    }
+    std::cout << "--- Predecessors ---" << std::endl;
     for (auto pr : CM.predecessors) {
         if (pr.first == 1) {
             continue;
         }
+        std::cout << "Vertex " << pr.first << ": ";
         std::cout << *pr.second << std::endl;
     }
+
+
     // construct route from contact predecessors
     // can use parts of Timothy's code because we are storing predecessors as contacts
     // removed case to check if the final contact is null - I think exiting the above loop verifies that
