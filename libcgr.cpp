@@ -238,6 +238,11 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
         vertices.insert({ dest_id, dest });
     }
 
+    visited = std::unordered_map<nodeId_t, Vertex>();
+    for (auto node_id : vertices) {
+        visited[node_id] = false;
+    }
+
 }
 
 
@@ -482,7 +487,7 @@ int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
 void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ, const Vertex v_curr) {
     for (auto adj : v_curr.adjacencies) {
         Vertex u = CM.vertices[adj.first];
-        if (u.visited) {
+        if (CM.visited[u.id]) {
             continue;
         }
         // check if there is any viable contact
@@ -503,7 +508,7 @@ void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, 
             u.predecessor = &best_contact;
         }
     }
-    v_curr.visited = true;
+    CM.visited[v_curr.id] = true;
 }
 
 Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Contact> contact_plan) {

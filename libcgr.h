@@ -83,6 +83,7 @@ public:
 class ContactMultigraph {
 public:
     std::unordered_map<nodeId_t, Vertex> vertices;
+    std::unordered_map<nodeId_t, bool> visited;
     ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t dest_id);
 };
 
