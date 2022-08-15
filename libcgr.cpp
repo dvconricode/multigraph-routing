@@ -537,7 +537,9 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
 
     // Default construction for each vertex sets arrival time to infinity,
     // visited to false, predecessor to null
-    CM.vertices[root_contact->frm].arrival_time = root_contact->start;
+    //CM.vertices[root_contact->frm].arrival_time = root_contact->start; old outdated way
+    CM.arrival_time[root_contact->frm] = root_contact->start;
+
     
     // Construct min PQ ordered by arrival time
     std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ;
