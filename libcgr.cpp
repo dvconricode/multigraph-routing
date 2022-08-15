@@ -522,6 +522,9 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
             Contact* p = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
             CM.predecessors[u.id] = p;
+
+            // still want to update u node's arrival time for sake of pq
+            u.arrival_time = best_arr_time;
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
