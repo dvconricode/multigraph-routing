@@ -25,7 +25,7 @@ int main() {
 	//}
 
 	for (Contact &c : contact_plan) {
-		std::cout << c << std::endl;
+		std::cout << &c << std::endl;
 	}
 
 	Contact rootContact = cgr::Contact(1, 1, 0, cgr::MAX_SIZE, 100, 1.0, 0);
