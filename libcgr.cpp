@@ -504,8 +504,8 @@ void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, 
             // update PQ
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-            PQ.push(u); // c++ priority_queue allows duplicate values
             u.predecessor = &best_contact;
+            PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
     CM.visited[v_curr.id] = true;
