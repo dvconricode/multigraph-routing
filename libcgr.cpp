@@ -557,7 +557,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
     Contact* contact;
-    for (contact = v_curr.predecessor; contact != root_contact; contact = CM.vertices[contact->frm].predecessor) {
+    for (contact = v_next.predecessor; contact != root_contact; contact = CM.vertices[contact->frm].predecessor) {
         hops.push_back(*contact);
     }
     Route route;
