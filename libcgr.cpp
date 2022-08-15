@@ -239,8 +239,8 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
     }
 
     visited = std::unordered_map<nodeId_t, bool>();
-    for (auto node_id : vertices) {
-        visited[node_id] = false;
+    for (auto v : vertices) {
+        visited[v.first] = false;
     }
 
 }
