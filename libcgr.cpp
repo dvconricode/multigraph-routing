@@ -462,12 +462,12 @@ std::ostream& operator<<(std::ostream &out, const Route &obj) {
  // finds contact C in contacts with smallest end time
  // s.t. C.end >= arrival_time && C.start <= arrival time
  // assumes non-overlapping intervals - would want to optimize if they do overlap
-Contact contact_search(std::vector<Contact> contacts, int arrival_time) {
+Contact contact_search(std::vector<Contact> &contacts, int arrival_time) {
     int index = contact_search_index(contacts, arrival_time);
     return contacts[index];
 }
 
-int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
+int contact_search_index(std::vector<Contact> &contacts, int arrival_time) {
     int left = 0;
     int right = contacts.size() - 1;
     if (contacts[left].end > arrival_time) {
@@ -489,11 +489,7 @@ int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
  // multigraph review procedure
  // modifies PQ
 void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> &PQ, Vertex &v_curr) {
-
-    for (Contact &c : CM.vertices[5].adjacencies[4]) {
-        std::cout << &c << std::endl;
-    }
-
+    // address testing good here (self note)
     for (auto adj : v_curr.adjacencies) {
         Vertex u = CM.vertices[adj.first];
         if (CM.visited[u.id]) {
