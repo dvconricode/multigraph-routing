@@ -244,9 +244,9 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
         visited[v.first] = false;
     }
 
-    for (Contact &c : vertices[5].adjacencies[4]) {
+    /*for (Contact &c : vertices[5].adjacencies[4]) {
         std::cout << &c << std::endl;
-    }
+    }*/
 }
 
 
@@ -488,7 +488,12 @@ int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
 
  // multigraph review procedure
  // modifies PQ
-void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> &PQ, Vertex &v_curr) {
+void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> &PQ, Vertex &v_curr) {
+
+    for (Contact &c : CM.vertices[5].adjacencies[4]) {
+        std::cout << &c << std::endl;
+    }
+
     for (auto adj : v_curr.adjacencies) {
         Vertex u = CM.vertices[adj.first];
         if (CM.visited[u.id]) {
