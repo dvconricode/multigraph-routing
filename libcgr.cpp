@@ -206,8 +206,12 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
     for (Contact& contact : contact_plan) {
         if (vertices.find(contact.frm) == vertices_end) {
             Vertex frm(contact.frm);
-            std::vector<Contact> adj = frm.adjacencies[contact.to]; // get the right list of contacts to this adjacency, will instantiate it as well
-            adj.push_back(contact);
+
+            //std::vector<Contact> adj = frm.adjacencies[contact.to]; // get the right list of contacts to this adjacency, will instantiate it as well
+            //adj.push_back(contact);
+            
+            frm.adjacencies[contact.to].push_back(contact);
+
             vertices.insert({ contact.frm, frm });
         }
         else {
