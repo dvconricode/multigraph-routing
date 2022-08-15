@@ -92,6 +92,10 @@ class CompareArrivals
 public:
     bool operator()(const Vertex& v1, const Vertex& v2)
     {
+        // smaller id breaks tie
+        if (v1.arrival_time == v2.arrival_time) {
+            return v1.id > v2.id;
+        }
         return v1.arrival_time > v2.arrival_time;
     }
 };
