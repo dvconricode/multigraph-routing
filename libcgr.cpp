@@ -484,7 +484,7 @@ int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
 
  // multigraph review procedure
  // modifies PQ
-void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ, const Vertex v_curr) {
+void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ, Vertex v_curr) {
     for (auto adj : v_curr.adjacencies) {
         Vertex u = CM.vertices[adj.first];
         if (CM.visited[u.id]) {
@@ -526,13 +526,13 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     }
     Vertex v_curr;
     Vertex v_next;
-    v_curr =(PQ.top();
+    v_curr = PQ.top();
     PQ.pop();
     while (true) {
         MRP(CM, PQ, v_curr); // want to make inline?
         v_next = PQ.top();
         PQ.pop();
-        if (v_next->id == destination) {
+        if (v_next.id == destination) {
             break;
         }
         else {
@@ -544,8 +544,8 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     // removed case to check if the final contact is null - I think exiting the above loop verifies that
     // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
-    Contact *contact;
-    for (contact = v_curr->predecessor; contact != root_contact; contact = CM.vertices[contact->frm].predecessor) {
+    Contact contact;
+    for (contact = v_curr.predecessor; contact != root_contact; contact = CM.vertices[contact.frm].predecessor) {
         hops.push_back(*contact);
     }
     Route route;
