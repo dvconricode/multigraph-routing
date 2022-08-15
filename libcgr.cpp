@@ -606,7 +606,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
 
     std::cout << "--- Contact Plan ---" << std::endl;
     for (Contact &c : contact_plan) {
-        std::cout << &c << std::endl;
+        std::cout << *c << std::endl;
     }
     std::cout << "--- Predecessors ---" << std::endl;
     for (auto pr : CM.predecessors) {
