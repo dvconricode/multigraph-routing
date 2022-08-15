@@ -486,6 +486,12 @@ int contact_search_index(std::vector<Contact> &contacts, int arrival_time) {
     return right;
 }
 
+// made this function because of implementation issues
+Contact* contact_search_predecessor(std::vector<Contact>& contacts, int arrival_time) {
+    int index = contact_search_index(contacts, arrival_time);
+    return &contacts[index];
+}
+
  // multigraph review procedure
  // modifies PQ
 void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> &PQ, Vertex &v_curr) {
@@ -509,7 +515,7 @@ void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>,
             // update PQ
             // using "lazy deletion"
             // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-            u.predecessor = &contact_search(v_curr_to_u, v_curr.arrival_time);
+            u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
             PQ.push(u); // c++ priority_queue allows duplicate values
         }
     }
