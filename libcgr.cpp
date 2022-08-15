@@ -560,7 +560,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
             }
             // check if there is any viable contact
             std::vector<Contact> v_curr_to_u = v_curr.adjacencies[u.id];
-            if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) {
+            if ((v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
                 continue;
             }
             // find earliest usable contact from v_curr to u
