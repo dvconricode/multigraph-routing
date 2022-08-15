@@ -480,20 +480,20 @@ int contact_search_index(std::vector<Contact> contacts, int arrival_time) {
  // multigraph review procedure
  // modifies PQ
 void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ, const Vertex v_curr) {
-    for (auto adj : v_curr->adjacencies) {
+    for (auto adj : v_curr.adjacencies) {
         Vertex u = CM.vertices[adj.first];
         if (u.visited) {
             continue;
         }
         // check if there is any viable contact
-        std::vector<Contact> v_curr_to_u = v_curr->adjacencies[u.id];
-        if (v_curr_to_u.back().end < v_curr->arrival_time) {
+        std::vector<Contact> v_curr_to_u = v_curr.adjacencies[u.id];
+        if (v_curr_to_u.back().end < v_curr.arrival_time) {
             continue;
         }
         // find earliest usable contact from v_curr to u
-        Contact best_contact = contact_search(v_curr_to_u, v_curr->arrival_time);
+        Contact best_contact = contact_search(v_curr_to_u, v_curr.arrival_time);
         // should owlt_mgn be included in best arrival time?
-        int best_arr_time = std::max(best_contact.start, v_curr->arrival_time) + best_contact.owlt;
+        int best_arr_time = std::max(best_contact.start, v_curr.arrival_time) + best_contact.owlt;
         if (best_arr_time < u.arrival_time) {
             u.arrival_time = best_arr_time;
             // update PQ
@@ -503,7 +503,7 @@ void MRP(ContactMultigraph CM, std::priority_queue<Vertex, std::vector<Vertex>, 
             u.predecessor = &best_contact;
         }
     }
-    v_curr->visited = true;
+    v_curr.visited = true;
 }
 
 Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Contact> contact_plan) {
