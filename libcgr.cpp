@@ -549,7 +549,46 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     v_curr = PQ.top();
     PQ.pop();
     while (true) {
-        MRP(CM, PQ, v_curr); // want to make inline?
+        //MRP(CM, PQ, v_curr); // want to make inline?
+
+        // MRP ----------
+
+        for (auto adj : v_curr.adjacencies) {
+            Vertex u = CM.vertices[adj.first];
+            if (CM.visited[u.id]) {
+                continue;
+            }
+            // check if there is any viable contact
+            std::vector<Contact> v_curr_to_u = v_curr.adjacencies[u.id];
+            if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) {
+                continue;
+            }
+            // find earliest usable contact from v_curr to u
+            Contact best_contact = contact_search(v_curr_to_u, CM.arrival_time[v_curr.id]);
+            // should owlt_mgn be included in best arrival time?
+            int best_arr_time = std::max(best_contact.start, CM.arrival_time[v_curr.id]) + best_contact.owlt;
+            if (best_arr_time < CM.arrival_time[u.id]) {
+                CM.arrival_time[u.id] = best_arr_time;
+                // update PQ
+                // using "lazy deletion"
+                // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
+                //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
+                Contact* p = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
+                CM.predecessors[u.id] = p;
+
+                // still want to update u node's arrival time for sake of pq
+                u.arrival_time = best_arr_time;
+                PQ.push(u); // c++ priority_queue allows duplicate values
+            }
+        }
+        CM.visited[v_curr.id] = true;
+
+
+
+        // MRP -----------
+
+
+
         v_next = PQ.top();
         PQ.pop();
         if (v_next.id == destination) {
