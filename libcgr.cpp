@@ -208,7 +208,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
     vertices = std::unordered_map<nodeId_t, Vertex>();
     auto vertices_end = vertices.end();
     //for (Contact& contact : contact_plan) {
-    for (int contact_i = 0; i < contact_plan.size(); ++i) {
+    for (int contact_i = 0; contact_i < contact_plan.size(); ++contact_i) {
         Contact& contact = contact_plan[contact_i];
         if (vertices.find(contact.frm) == vertices_end) {
             Vertex frm(contact.frm);
@@ -216,7 +216,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
             //std::vector<Contact> adj = frm.adjacencies[contact.to]; // get the right list of contacts to this adjacency, will instantiate it as well
             //adj.push_back(contact);
             
-            frm.adjacencies[contact.to].push_back(contact_i);
+            frm.adjacencies[contact.to].push_back(contact_plan[contact_i]);
 
             vertices.insert({ contact.frm, frm });
         }
@@ -226,7 +226,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
             // if the map can't find the key it creates a default constructed element for it
             // https://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
             if (adj.empty() || contact.start > adj.back().start) {
-                vertices[contact.frm].adjacencies[contact.to].push_back(contact_i);
+                vertices[contact.frm].adjacencies[contact.to].push_back(contact_plan[contact_i]);
             }
             else {
                 // insert contact sorted by start time
