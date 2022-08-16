@@ -510,7 +510,7 @@ int contact_search_predecessor(std::vector<int>& contacts_i, int& arrival_time, 
     int left = 0;
     int right = contacts_i.size() - 1;
     if (contact_plan[contacts_i[left]].end > arrival_time) {
-        return left;
+        return contacts_i[left];
     }
     int mid;
     while (left < right - 1) {
