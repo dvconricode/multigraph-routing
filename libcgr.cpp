@@ -197,7 +197,7 @@ Vertex::Vertex(nodeId_t node_id) {
     adjacencies = std::unordered_map<nodeId_t, std::vector<Contact>>();
     arrival_time = MAX_SIZE;
     visited = false;
-    predecessor = MAX_SIZE; // just a way to identify. really should make integer instead of int then set to null
+    predecessor = NULL; 
 }
 
 bool Vertex::operator<(const Vertex& v) const {
@@ -246,7 +246,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
     arrival_time = std::unordered_map<nodeId_t, int>();
     for (auto v : vertices) {
         visited[v.first] = false;
-        predecessors[v.first] = NULL;
+        predecessors[v.first] = MAX_SIZE; // just a way to identify. really should make integer instead of int then set to null
         arrival_time[v.first] = MAX_SIZE;
     }
 
