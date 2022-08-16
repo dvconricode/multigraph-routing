@@ -595,7 +595,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
             // turn array of indices into array of contacts
             std::vector<Contact> v_curr_to_u;
             for (int i = 0; i < v_curr_to_u_ind.size(); ++i) {
-                v_curr_to_u[i] = contact_plan[v_curr_to_u_i[i]];
+                v_curr_to_u[i] = contact_plan[v_curr_to_u_ind[i]];
             }
 
             if ((v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
@@ -661,8 +661,8 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
     Contact contact;
-    for (contact = contact_plan[CM.predecessors[v_next.id]]; contact.frm != contact.to; contact = contact_plan[CM.predecessors[CM.vertices[contact->frm].id]]) {
-        hops.push_back(&contact);
+    for (contact = contact_plan[CM.predecessors[v_next.id]]; contact.frm != contact.to; contact = contact_plan[CM.predecessors[CM.vertices[contact.frm].id]]) {
+        hops.push_back(contact);
     }
     Route route;
     route = Route(hops.back());
