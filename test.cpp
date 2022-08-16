@@ -52,8 +52,6 @@ int main() {
 	std::vector<Contact> hops = bestRoute.get_hops();
 	int expected_hops = 2;
 
-	std::vector<Contact> hops = bestRoute.get_hops();
-	int expected_hops = 2;
 
 	for (int i = 0; i < expected_hops; ++i) {
 		std::cout << "Hop " << i << ": " << hops[i] << std::endl;
