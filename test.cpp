@@ -6,8 +6,8 @@ using namespace cgr;
 
 int main() {
 
-	std::vector<Contact> contact_plan = cp_load("cgrTutorial.json");
-	int dest_id = 5;
+	/*std::vector<Contact> contact_plan = cp_load("cgrTutorial.json");
+	int dest_id = 5;*/
 	
 	//std::cout << "---contact plan---" << std::endl;
 	//std::cout << contact_plan << std::endl;
@@ -28,7 +28,7 @@ int main() {
 		std::cout << &c << std::endl;
 	}*/
 
-	Contact rootContact = cgr::Contact(1, 1, 0, cgr::MAX_SIZE, 100, 1.0, 0);
+	/*Contact rootContact = cgr::Contact(1, 1, 0, cgr::MAX_SIZE, 100, 1.0, 0);
 	rootContact.arrival_time = 0;
 
 	Route bestRoute = cmr_dijkstra(&rootContact, dest_id, contact_plan);
@@ -36,6 +36,24 @@ int main() {
 
 	std::vector<Contact> hops = bestRoute.get_hops();
 	int expected_hops = 3;
+
+	for (int i = 0; i < expected_hops; ++i) {
+		std::cout << "Hop " << i << ": " << hops[i] << std::endl;
+	}
+
+	return 0;*/
+
+
+	std::vector<Contact> contact_plan = cp_load("contactPlan_RoutingTest.json");
+	Contact rootContact = cgr::Contact(1, 1, 0, cgr::MAX_SIZE, 100, 1.0, 0);
+	rootContact.arrival_time = 0;
+	int dest_id = 4;
+	Route bestRoute = cmr_dijkstra(&rootContact, dest_id, contact_plan);
+	std::vector<Contact> hops = bestRoute.get_hops();
+	int expected_hops = 2;
+
+	std::vector<Contact> hops = bestRoute.get_hops();
+	int expected_hops = 2;
 
 	for (int i = 0; i < expected_hops; ++i) {
 		std::cout << "Hop " << i << ": " << hops[i] << std::endl;
