@@ -629,7 +629,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
 
 
         v_next = PQ.top();
-        std::cout << PQ.top() << std::endl;
+        std::cout << PQ.top().id << std::endl;
         PQ.pop();
         if (v_next.id == destination) {
             break;
