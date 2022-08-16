@@ -594,11 +594,11 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
             std::vector<int> v_curr_to_u_ind = v_curr.adjacencies[u.id];
             // turn array of indices into array of contacts
             std::vector<Contact> v_curr_to_u;
-            for (int i = 0; i < v_curr_to_u_i.size(); ++i) {
+            for (int i = 0; i < v_curr_to_u_ind.size(); ++i) {
                 v_curr_to_u[i] = contact_plan[v_curr_to_u_i[i]];
             }
 
-            if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
+            if ((v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
                 continue;
             }
             // find earliest usable contact from v_curr to u
@@ -612,7 +612,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
                 // using "lazy deletion"
                 // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
                 //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
-                int p_i = contact_search_predecessor(v_curr_to_u_i, v_curr.arrival_time, contact_plan);
+                int p_i = contact_search_predecessor(v_curr_to_u_ind, v_curr.arrival_time, contact_plan);
                 CM.predecessors[u.id] = p_i;
 
                 // still want to update u node's arrival time for sake of pq
@@ -660,9 +660,9 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     // removed case to check if the final contact is null - I think exiting the above loop verifies that
     // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
-    Contact* contact;
-    for (contact = CM.predecessors[v_next.id]; contact != root_contact; contact = CM.predecessors[CM.vertices[contact->frm].id]) {
-        hops.push_back(*contact);
+    Contact contact;
+    for (contact = contact_plan[CM.predecessors[v_next.id]]; contact.frm != contact.to; contact = contact_plan[CM.predecessors[CM.vertices[contact->frm].id]]) {
+        hops.push_back(&contact);
     }
     Route route;
     route = Route(hops.back());
