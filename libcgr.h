@@ -84,7 +84,8 @@ class ContactMultigraph {
 public:
     std::unordered_map<nodeId_t, Vertex> vertices;
     std::unordered_map<nodeId_t, bool> visited;
-    std::unordered_map<nodeId_t, Contact*> predecessors;
+    //std::unordered_map<nodeId_t, Contact*> predecessors;
+    std::unordered_map<nodeId_t, int> predecessors; // storing the index of the contact in the contact plan - helps w implementation
     std::unordered_map<nodeId_t, int> arrival_time;
     ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t dest_id);
 };
