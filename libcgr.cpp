@@ -231,7 +231,15 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
             else {
                 // insert contact sorted by start time
                 // assuming non-overlapping contacts
-                int index = cgr::contact_search_index(adj, contact.start);
+
+                // turn indices into contacts
+                std::vector<Contact> adj_contacts;
+                for (int i = 0; i < adj.size(); ++i) {
+                    adj_contacts[i] = contact_plan[adj[i]];
+                }
+
+
+                int index = cgr::contact_search_index(adj_contacts, contact.start);
                 vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_i);
             }
         }
@@ -587,7 +595,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
             // turn array of indices into array of contacts
             std::vector<Contact> v_curr_to_u;
             for (int i = 0; i < v_curr_to_u_i.size(); ++i) {
-                v_curr_to_u[i] = contact_plan[i];
+                v_curr_to_u[i] = contact_plan[v_curr_to_u_i[i]];
             }
 
             if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
