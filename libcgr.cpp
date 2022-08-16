@@ -232,7 +232,7 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
                 // insert contact sorted by start time
                 // assuming non-overlapping contacts
                 int index = cgr::contact_search_index(adj, contact.start);
-                vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_i);
+                vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_plan[contact_i]);
             }
         }
     }
