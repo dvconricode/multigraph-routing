@@ -642,7 +642,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
 
     // test prints for the sake of debugging
 
-    std::cout << "--- Contact Plan ---" << std::endl;
+  /*  std::cout << "--- Contact Plan ---" << std::endl;
     for (Contact &c : contact_plan) {
         std::cout << c << std::endl;
     }
@@ -653,7 +653,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
         }
         std::cout << "Vertex " << pr.first << ": ";
         std::cout << contact_plan[pr.second] << std::endl;
-    }
+    }*/
 
 
     // construct route from contact predecessors
@@ -664,6 +664,10 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     Contact contact;
     for (contact = contact_plan[CM.predecessors[v_next.id]]; contact.frm != contact.to; contact = contact_plan[CM.predecessors[CM.vertices[contact.frm].id]]) {
         hops.push_back(contact);
+        // to avoid segfault, potential fix
+        if (contact.frm == root_contact->frm) { // meaning if we've just inserted our first contact
+            break;
+        }
     }
     Route route;
     route = Route(hops.back());
