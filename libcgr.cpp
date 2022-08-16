@@ -194,7 +194,7 @@ Vertex::Vertex() {
 
 Vertex::Vertex(nodeId_t node_id) {
     id = node_id;
-    adjacencies = std::unordered_map<nodeId_t, std::vector<Contact>>();
+    adjacencies = std::unordered_map<nodeId_t, std::vector<int>>();
     arrival_time = MAX_SIZE;
     visited = false;
     predecessor = NULL; 
@@ -216,23 +216,23 @@ ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t
             //std::vector<Contact> adj = frm.adjacencies[contact.to]; // get the right list of contacts to this adjacency, will instantiate it as well
             //adj.push_back(contact);
             
-            frm.adjacencies[contact.to].push_back(contact_plan[contact_i]);
+            frm.adjacencies[contact.to].push_back(contact_i);
 
             vertices.insert({ contact.frm, frm });
         }
         else {
             //Vertex frm = vertices[contact.frm];
-            std::vector<Contact> adj = vertices[contact.frm].adjacencies[contact.to];
+            std::vector<int> adj = vertices[contact.frm].adjacencies[contact.to];
             // if the map can't find the key it creates a default constructed element for it
             // https://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
-            if (adj.empty() || contact.start > adj.back().start) {
-                vertices[contact.frm].adjacencies[contact.to].push_back(contact_plan[contact_i]);
+            if (adj.empty() || contact.start > contact_plan[adj.back()].start) {
+                vertices[contact.frm].adjacencies[contact.to].push_back(contact_i);
             }
             else {
                 // insert contact sorted by start time
                 // assuming non-overlapping contacts
                 int index = cgr::contact_search_index(adj, contact.start);
-                vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_plan[contact_i]);
+                vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_i);
             }
         }
     }
@@ -583,17 +583,17 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
                 continue;
             }
             // check if there is any viable contact
-            std::vector<int> v_curr_to_u_i = v_curr.adjacencies[u.id];
-            if ((contact_plan[v_curr_to_u_i.back()].end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
-                continue;
-            }
-            // find earliest usable contact from v_curr to u
-
+            std::vector<int> v_curr_to_u_ind = v_curr.adjacencies[u.id];
             // turn array of indices into array of contacts
             std::vector<Contact> v_curr_to_u;
             for (int i = 0; i < v_curr_to_u_i.size(); ++i) {
                 v_curr_to_u[i] = contact_plan[i];
             }
+
+            if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
+                continue;
+            }
+            // find earliest usable contact from v_curr to u
 
             Contact best_contact = contact_search(v_curr_to_u, CM.arrival_time[v_curr.id]);
             // should owlt_mgn be included in best arrival time?
@@ -604,7 +604,7 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
                 // using "lazy deletion"
                 // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
                 //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
-                int p_i = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time, contact_plan);
+                int p_i = contact_search_predecessor(v_curr_to_u_i, v_curr.arrival_time, contact_plan);
                 CM.predecessors[u.id] = p_i;
 
                 // still want to update u node's arrival time for sake of pq

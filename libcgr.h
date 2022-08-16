@@ -70,7 +70,7 @@ public:
 class Vertex {
 public:
     nodeId_t id;
-    std::unordered_map<nodeId_t, std::vector<Contact> > adjacencies;
+    std::unordered_map<nodeId_t, std::vector<int> > adjacencies; // now store the index of the contact in the contact plan
     int arrival_time;
     bool visited;
     Contact *predecessor;
