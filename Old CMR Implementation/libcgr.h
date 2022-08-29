@@ -70,33 +70,39 @@ public:
 class Vertex {
 public:
     nodeId_t id;
-    // mapping between the ID of the vertex that can be reached and a list of every contact 
-    // connecting this vertex to the vertex that can be reached, sorted by contact's arrival time
-    std::unordered_map<nodeId_t, std::vector<Contact>> adjacencies; 
+    std::unordered_map<nodeId_t, std::vector<int> > adjacencies; // now store the index of the contact in the contact plan
     int arrival_time;
     bool visited;
     Contact *predecessor;
     Vertex(nodeId_t id);
     Vertex();
-    bool operator<(const Vertex& v) const; // comparison operator to order in priority queue
+    bool operator<(const Vertex& v) const;
 };
 
 
 class ContactMultigraph {
 public:
-    std::unordered_map<nodeId_t, Vertex*> vertices;
+    std::unordered_map<nodeId_t, Vertex> vertices;
+    std::unordered_map<nodeId_t, bool> visited;
+    //std::unordered_map<nodeId_t, Contact*> predecessors;
+    std::unordered_map<nodeId_t, int> predecessors; // storing the index of the contact in the contact plan - helps w implementation
+    std::unordered_map<nodeId_t, int> arrival_time;
     ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t dest_id);
 };
 
 
-// Comparator for priority queue in multigraph routing
 class CompareArrivals
 {
 public:
-    bool operator()(const Vertex* v1, const Vertex* v2);
+    bool operator()(const Vertex& v1, const Vertex& v2)
+    {
+        // smaller id breaks tie
+        if (v1.arrival_time == v2.arrival_time) {
+            return v1.id > v2.id;
+        }
+        return v1.arrival_time > v2.arrival_time;
+    }
 };
-
-
     int contact_search_index(std::vector<Contact> &contacts, int arrival_time);
     Contact* contact_search_predecessor(std::vector<Contact>& contacts, int arrival_time);
     std::vector<Contact> cp_load(std::string filename, int max_contacts=MAX_SIZE);

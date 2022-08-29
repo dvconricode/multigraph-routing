@@ -143,15 +143,14 @@ void Route::refresh_metrics() {
     for (Contact& contact : allHops) {
         if (contact == allHops[0]) {
             contact.first_byte_tx_time = contact.start;
-        }
-        else {
+        } else {
             contact.first_byte_tx_time = std::max(contact.start, prev_last_byte_arr_time);
         }
         int bundle_tx_time = 0;
         contact.last_byte_tx_time = contact.first_byte_tx_time + bundle_tx_time;
         contact.last_byte_arr_time = contact.last_byte_tx_time + contact.owlt;
         prev_last_byte_arr_time = contact.last_byte_arr_time;
-
+        
         int effective_start_time = contact.first_byte_tx_time;
         int min_succ_stop_time = MAX_SIZE;
         std::vector<Contact>::iterator it = std::find(allHops.begin(), allHops.end(), contact);
@@ -175,8 +174,7 @@ bool Route::eligible(Contact contact) {
     try {
         Contact last = get_last_contact();
         return (!visited(contact.to) && contact.end > last.start + last.owlt);
-    }
-    catch (EmptyContainerError) {
+    } catch (EmptyContainerError) {
         return true;
     }
 }
@@ -184,74 +182,85 @@ bool Route::eligible(Contact contact) {
 std::vector<Contact> Route::get_hops() {
     if (NULL == parent) {
         return hops;
-    }
-    else {
+    } else {
         std::vector<Contact> v(parent->get_hops());
         v.insert(v.end(), hops.begin(), hops.end());
         return v;
     }
 }
-
 Vertex::Vertex() {
     // this should never be used
 }
 
 Vertex::Vertex(nodeId_t node_id) {
     id = node_id;
-    adjacencies = std::unordered_map<nodeId_t, std::vector<Contact>>();
+    adjacencies = std::unordered_map<nodeId_t, std::vector<int>>();
     arrival_time = MAX_SIZE;
     visited = false;
-    predecessor = NULL;
+    predecessor = NULL; 
 }
 
 bool Vertex::operator<(const Vertex& v) const {
     return arrival_time < v.arrival_time;
 }
 
-bool CompareArrivals::operator()(const Vertex* v1, const Vertex* v2) {
-    // smaller id breaks tie
-    if (v1->arrival_time == v2->arrival_time) {
-        return v1->id > v2->id;
-    }
-    return v1->arrival_time > v2->arrival_time;
-}
-
-
 ContactMultigraph::ContactMultigraph(std::vector<Contact> contact_plan, nodeId_t dest_id) {
-    vertices = std::unordered_map<nodeId_t, Vertex*>();
+    vertices = std::unordered_map<nodeId_t, Vertex>();
     auto vertices_end = vertices.end();
-    for (Contact& contact : contact_plan) {
-        if (vertices.find(contact.frm) == vertices_end) { // if the frm vertex does not exist
+    //for (Contact& contact : contact_plan) {
+    for (int contact_i = 0; contact_i < contact_plan.size(); ++contact_i) {
+        Contact& contact = contact_plan[contact_i];
+        if (vertices.find(contact.frm) == vertices_end) {
             Vertex frm(contact.frm);
-            // Put contact in `frm node`'s adjacency list to `to node`
-            std::vector<Contact> adj = frm.adjacencies[contact.to];
-            adj.push_back(contact);
-            vertices.insert({ contact.frm, & frm });
+
+            //std::vector<Contact> adj = frm.adjacencies[contact.to]; // get the right list of contacts to this adjacency, will instantiate it as well
+            //adj.push_back(contact);
+            
+            frm.adjacencies[contact.to].push_back(contact_i);
+
+            vertices.insert({ contact.frm, frm });
         }
-        else { // if the frm vertex does exist
-            // Get list of contacts from `from node` to `to node`
-            std::vector<Contact> adj = vertices[contact.frm]->adjacencies[contact.to];
-            // If the contact list is empty or the latest contact in the list is
-            // earlier than the current contact's start, put the current contact at the end of the list
-            if (adj.empty() || contact.start > adj.back().start) {
-                vertices[contact.frm]->adjacencies[contact.to].push_back(contact);
+        else {
+            //Vertex frm = vertices[contact.frm];
+            std::vector<int> adj = vertices[contact.frm].adjacencies[contact.to];
+            // if the map can't find the key it creates a default constructed element for it
+            // https://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
+            if (adj.empty() || contact.start > contact_plan[adj.back()].start) {
+                vertices[contact.frm].adjacencies[contact.to].push_back(contact_i);
             }
-            else { // if the current contact needs to be inserted somewhere inside the list
-                // assuming non-overlapping contacts
-                // find the index that the contact needs to be inserted at
-                int index = cgr::contact_search_index(adj, contact.start);
+            else {
                 // insert contact sorted by start time
-                vertices[contact.frm]->adjacencies[contact.to].insert(vertices[contact.frm]->adjacencies[contact.to].begin() + index, contact);
+                // assuming non-overlapping contacts
+
+                // turn indices into contacts
+                std::vector<Contact> adj_contacts;
+                for (int i = 0; i < adj.size(); ++i) {
+                    adj_contacts[i] = contact_plan[adj[i]];
+                }
+
+
+                int index = cgr::contact_search_index(adj_contacts, contact.start);
+                vertices[contact.frm].adjacencies[contact.to].insert(vertices[contact.frm].adjacencies[contact.to].begin() + index, contact_i);
             }
         }
     }
-    // Ensure the destination vertex exists since we're building vertices in the contact plan based on
-    // the contact's `frm`. Any other node that is only `to` but never `frm` we can ignore and not construct
-    // because it will never be part of the optimal path
     if (vertices.find(dest_id) == vertices_end) {
         Vertex dest(dest_id);
-        vertices.insert({ dest_id, & dest });
+        vertices.insert({ dest_id, dest });
     }
+
+    predecessors = std::unordered_map<nodeId_t, int>();
+    visited = std::unordered_map<nodeId_t, bool>();
+    arrival_time = std::unordered_map<nodeId_t, int>();
+    for (auto v : vertices) {
+        visited[v.first] = false;
+        predecessors[v.first] = MAX_SIZE; // just a way to identify. really should make integer instead of int then set to null
+        arrival_time[v.first] = MAX_SIZE;
+    }
+
+    /*for (Contact &c : vertices[5].adjacencies[4]) {
+        std::cout << &c << std::endl;
+    }*/
 }
 
 
@@ -460,23 +469,18 @@ std::ostream& operator<<(std::ostream &out, const Route &obj) {
     return out;
 }
 
-
-
 /*
- * Returns the contact C in sorted vector of Contacts `contacts` with the smallest end time
- * where C.end >= arrival_time && C.start <= arrival_time.
- * Assumes non-overlapping intervals.
+ * Multigraph Routing
  */
+
+ // finds contact C in contacts with smallest end time
+ // s.t. C.end >= arrival_time && C.start <= arrival time
+ // assumes non-overlapping intervals - would want to optimize if they do overlap
 Contact contact_search(std::vector<Contact> &contacts, int arrival_time) {
     int index = contact_search_index(contacts, arrival_time);
     return contacts[index];
 }
 
-/* 
- * Returns the index of the contact C in sorted vector of Contacts `contacts` with the smallest end time
- * where C.end >= arrival_time && C.start <= arrival_time.
- * Assumes non-overlapping intervals.
- */
 int contact_search_index(std::vector<Contact> &contacts, int arrival_time) {
     int left = 0;
     int right = contacts.size() - 1;
@@ -496,66 +500,138 @@ int contact_search_index(std::vector<Contact> &contacts, int arrival_time) {
     return right;
 }
 
-/*
- * Multigraph routing route-finding algorithm. Finds the shortest (least amount of time) path
- * to transfer data throughout a network of nodes connected by temporary contacts.
- * root_contact is a contact from the source node to the source node, and it's start time is when data first arrives to the source node
- * destination is the nodeID_t of the destination node
- * contact_plan is a vector of contacts that is used to construct the contact multigraph
- */
+// made this function because of implementation issues
+//Contact* contact_search_predecessor(std::vector<Contact>& contacts, int arrival_time) {
+//    int index = contact_search_index(contacts, arrival_time);
+//    return &contacts[index];
+//}
+
+int contact_search_predecessor(std::vector<int>& contacts_i, int& arrival_time, std::vector<Contact>& contact_plan) {
+    int left = 0;
+    int right = contacts_i.size() - 1;
+    if (contact_plan[contacts_i[left]].end > arrival_time) {
+        return contacts_i[left];
+    }
+    int mid;
+    while (left < right - 1) {
+        mid = (left + right) / 2;
+        if (contact_plan[contacts_i[mid]].end > arrival_time) {
+            right = mid;
+        }
+        else {
+            left = mid;
+        }
+    }
+    return contacts_i[right];
+}
+
+
+ // multigraph review procedure
+ // modifies PQ
+//void MRP(ContactMultigraph &CM, std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> &PQ, Vertex &v_curr) {
+//    // address testing good here (self note)
+//    for (auto adj : v_curr.adjacencies) {
+//        Vertex u = CM.vertices[adj.first];
+//        if (CM.visited[u.id]) {
+//            continue;
+//        }
+//        // check if there is any viable contact
+//        std::vector<Contact> v_curr_to_u = v_curr.adjacencies[u.id];
+//        if (v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) {
+//            continue;
+//        }
+//        // find earliest usable contact from v_curr to u
+//        Contact best_contact = contact_search(v_curr_to_u, CM.arrival_time[v_curr.id]);
+//        // should owlt_mgn be included in best arrival time?
+//        int best_arr_time = std::max(best_contact.start, CM.arrival_time[v_curr.id]) + best_contact.owlt;
+//        if (best_arr_time < CM.arrival_time[u.id]) {
+//            CM.arrival_time[u.id] = best_arr_time;
+//            // update PQ
+//            // using "lazy deletion"
+//            // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
+//            //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
+//            Contact* p = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time);
+//            CM.predecessors[u.id] = p;
+//
+//            // still want to update u node's arrival time for sake of pq
+//            u.arrival_time = best_arr_time;
+//            PQ.push(u); // c++ priority_queue allows duplicate values
+//        }
+//    }
+//    CM.visited[v_curr.id] = true;
+//}
+
 Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Contact> contact_plan) {
     // Construct Contact Multigraph from Contact Plan
     ContactMultigraph CM(contact_plan, destination);
+
     // Default construction for each vertex sets arrival time to infinity,
-    // visited to false, predecessor to null.
-    // The source vertex's arrival time needs to be set to the start time given by the root contact.
-    CM.vertices[root_contact->frm]->arrival_time = root_contact->start;
-    
+    // visited to false, predecessor to null
+    //CM.vertices[root_contact->frm].arrival_time = root_contact->start; old outdated way
+    CM.arrival_time[root_contact->frm] = root_contact->start;
 
     
-    // Construct min PQ of vertices ordered by arrival time
-    std::priority_queue<Vertex*, std::vector<Vertex*>, CompareArrivals> PQ;
+    // Construct min PQ ordered by arrival time
+    std::priority_queue<Vertex, std::vector<Vertex>, CompareArrivals> PQ;
     for (auto v : CM.vertices) {
         PQ.push(v.second);
     }
-    Vertex* v_curr;
-    Vertex* v_next;
-    // The root vertex will be the top of the priority queue
+    Vertex v_curr;
+    Vertex v_next;
     v_curr = PQ.top();
     PQ.pop();
     while (true) {
-        // ------------- Multigraph Review Procedure start -------------
-        for (auto adj : v_curr->adjacencies) {
-            Vertex* u = CM.vertices[adj.first];
-            if (u->visited) {
+        //MRP(CM, PQ, v_curr); // want to make inline?
+
+        // MRP ----------
+
+        for (auto adj : v_curr.adjacencies) {
+            Vertex u = CM.vertices[adj.first];
+            if (CM.visited[u.id]) {
                 continue;
             }
-            // If the latest contact leaving v_curr is closed by the time data gets to v_curr,
-            // there are no valid contacts.
-            std::vector<Contact> v_curr_to_u = v_curr->adjacencies[u->id];
-            if (v_curr_to_u.back().end < v_curr->arrival_time) {
+            // check if there is any viable contact
+            std::vector<int> v_curr_to_u_ind = v_curr.adjacencies[u.id];
+            // turn array of indices into array of contacts
+            std::vector<Contact> v_curr_to_u;
+            for (int i = 0; i < v_curr_to_u_ind.size(); ++i) {
+                v_curr_to_u.push_back(contact_plan[v_curr_to_u_ind[i]]);
+            }
+
+            if ((v_curr_to_u.back().end < CM.arrival_time[v_curr.id]) && (CM.arrival_time[v_curr.id] != MAX_SIZE)) {
                 continue;
             }
             // find earliest usable contact from v_curr to u
-            Contact best_contact = contact_search(v_curr_to_u, v_curr->arrival_time);
-            // owlt_mgn is used in the CMR algorithm, but is not part of this implementation because it was not used in CGR
-            // best_arr_time is the best time u can be reached by taking a contact from v_curr. if this is the fastest known route
-            // then update u's arrival time and predecessor
-            int best_arr_time = std::max(best_contact.start, v_curr->arrival_time) + best_contact.owlt;
-            if (best_arr_time < u->arrival_time) {
-                u->arrival_time = best_arr_time;
-                // update u's priority in PQ using "lazy deletion"
+
+            Contact best_contact = contact_search(v_curr_to_u, CM.arrival_time[v_curr.id]);
+            // should owlt_mgn be included in best arrival time?
+            int best_arr_time = std::max(best_contact.start, CM.arrival_time[v_curr.id]) + best_contact.owlt;
+            if (best_arr_time < CM.arrival_time[u.id]) {
+                CM.arrival_time[u.id] = best_arr_time;
+                // update PQ
+                // using "lazy deletion"
                 // Source: https://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-                PQ.push(u);
-                u->predecessor = &best_contact;
+                //u.predecessor = contact_search_predecessor(v_curr_to_u, v_curr.arrival_time); old way
+                int p_i = contact_search_predecessor(v_curr_to_u_ind, CM.arrival_time[v_curr.id], contact_plan);
+                CM.predecessors[u.id] = p_i;
+
+                // still want to update u node's arrival time for sake of pq
+                u.arrival_time = best_arr_time;
+                PQ.push(u); // c++ priority_queue allows duplicate values
             }
         }
-        v_curr->visited = true;
-        // ------------- Multigraph Review Procedure end -------------
-        // get the next closest vertex to do MRP with
+        CM.visited[v_curr.id] = true;
+
+
+
+        // MRP -----------
+
+
+
         v_next = PQ.top();
+        //std::cout << PQ.top().id << std::endl;
         PQ.pop();
-        if (v_next->id == destination) {
+        if (v_next.id == destination) {
             break;
         }
         else {
@@ -580,12 +656,16 @@ Route cmr_dijkstra(Contact* root_contact, nodeId_t destination, std::vector<Cont
     }*/
 
 
-    // construct route from predecessors
+    // construct route from contact predecessors
+    // can use parts of Timothy's code because we are storing predecessors as contacts
+    // removed case to check if the final contact is null - I think exiting the above loop verifies that
+    // Raises the question: how to exit if path isn't found
     std::vector<Contact> hops;
-    Contact* contact;
-    for (contact = v_next->predecessor; contact->frm != contact->to; contact = CM.vertices[contact->frm]->predecessor) {
-        hops.push_back(*contact);
-        if (contact->frm == root_contact->frm) { // meaning if we've just inserted our first contact
+    Contact contact;
+    for (contact = contact_plan[CM.predecessors[v_next.id]]; contact.frm != contact.to; contact = contact_plan[CM.predecessors[CM.vertices[contact.frm].id]]) {
+        hops.push_back(contact);
+        // to avoid segfault, potential fix
+        if (contact.frm == root_contact->frm) { // meaning if we've just inserted our first contact
             break;
         }
     }
